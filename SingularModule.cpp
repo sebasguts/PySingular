@@ -78,6 +78,33 @@ static PyObject * RunSingularCommand( PyObject* self, PyObject* args ){
     
 }
 
+extern char** singular_completion( char*, int, int );
+
+static PyObject * GetSingularCompletion( PyObject* self, PyObject* args ){
+    
+    const char * input_string;
+    int begin;
+    int end;
+    
+    if (! PyArg_ParseTuple( args, "sii", &input_string, &begin, &end ) )
+        return NULL;
+    
+    char* input_string_nonconst = const_cast<char*>(input_string);
+    
+    char** singular_complete_return = singular_completion( input_string_nonconst, begin, end );
+    
+    int pos = 0;
+    PyObject * python_list = PyList_New(0);
+    while( singular_complete_return[ pos ] != '\0' ){
+        PyList_Append( python_list, PyUnicode_FromString( singular_complete_return[ pos ] ) );
+        pos++;
+    }
+    
+    return python_list;
+    
+}
+
+
 /*
  * Python init stuff
  */
@@ -85,6 +112,8 @@ static PyObject * RunSingularCommand( PyObject* self, PyObject* args ){
 static PyMethodDef SingularPythonMethods[] = {
     {"RunSingularCommand",  RunSingularCommand, METH_VARARGS,
      "Runs a singular command"},
+    {"GetSingularCompletion", GetSingularCompletion, METH_VARARGS,
+     "Gets readline alike singular completion" },
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
