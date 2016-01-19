@@ -14,6 +14,8 @@ using std::string;
 string singular_return;
 string singular_error;
 
+bool singular_python_initialized = false;
+
 /*
  * Singular init stuff
  */
@@ -28,8 +30,29 @@ void PrintS_for_python(const char *s)
   singular_return += s;
 }
 
-void init_singular_for_python(){
-    siInit("/usr/local/bin/Singular"); //FIXME
+// void init_singular_for_python(){
+//     siInit("/usr/local/bin/Singular"); //FIXME
+//     init_signals();
+//     errorreported = 0;
+//     // init for output:
+//     WerrorS_callback=WerrorS_for_python;
+//     PrintS_callback=PrintS_for_python;
+// 
+//     singular_return = string();
+//     singular_error = string();
+// }
+
+/*
+ * Python functions
+ */
+extern int inerror;
+
+static PyObject * InitializeSingular( PyObject* self, PyObject* args ){
+    const char * path_to_singular_library;
+    if (! PyArg_ParseTuple(args, "s", &path_to_singular_library) )
+        return Py_False;
+    char* path_non_const = const_cast<char*>(path_to_singular_library);
+    siInit( path_non_const );
     init_signals();
     errorreported = 0;
     // init for output:
@@ -38,14 +61,14 @@ void init_singular_for_python(){
 
     singular_return = string();
     singular_error = string();
+    singular_python_initialized = true;
+    return Py_True;
 }
 
-/*
- * Python functions
- */
-extern int inerror;
-
 static PyObject * RunSingularCommand( PyObject* self, PyObject* args ){
+    
+    if ( ! singular_python_initialized )
+        return PyTuple_Pack( 2, Py_True, PyUnicode_FromString( "Please use InitializeSingular first " ) );
     
     singular_return.erase();
     singular_error.erase();
@@ -82,6 +105,9 @@ extern char** singular_completion( char*, int, int );
 
 static PyObject * GetSingularCompletion( PyObject* self, PyObject* args ){
     
+    if ( ! singular_python_initialized )
+        return PyTuple_Pack( 2, Py_True, PyUnicode_FromString( "Please use InitializeSingular first " ) );
+    
     const char * input_string;
     int begin;
     int end;
@@ -114,6 +140,8 @@ static PyMethodDef SingularPythonMethods[] = {
      "Runs a singular command"},
     {"GetSingularCompletion", GetSingularCompletion, METH_VARARGS,
      "Gets readline alike singular completion" },
+    {"InitializeSingular", InitializeSingular, METH_VARARGS,
+      "Initializes libsingular" },
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
@@ -129,7 +157,7 @@ static struct PyModuleDef SingularPythonmodule = {
 PyMODINIT_FUNC
 PyInit_SingularPython(void)
 {
-    init_singular_for_python();
+//     init_singular_for_python();
     return PyModule_Create(&SingularPythonmodule);
 }
 
