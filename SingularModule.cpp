@@ -165,17 +165,35 @@ PyInit_SingularPython(void)
  * main
  */
 
+wchar_t *GetWC(const char *c)
+{
+    const size_t cSize = strlen(c)+1;
+    wchar_t* wc = new wchar_t[cSize];
+    mbstowcs (wc, c, cSize);
+
+    return wc;
+}
+
 int main(int argc, char *argv[]){
+
+#ifdef PYTHON_VERSION_OLDER_THREE_FIVE
+    const size_t cSize = strlen(argv[0])+1;
+    wchar_t* program = new wchar_t[cSize];
+    mbstowcs (program, argv[0], cSize);
+#else
     wchar_t *program = Py_DecodeLocale(argv[0], NULL);
     if (program == NULL) {
         fprintf(stderr, "Fatal error: cannot decode argv[0]\n");
         exit(1);
     }
+#endif
 
     /* Add a built-in module, before Py_Initialize */
 
     PyImport_AppendInittab("SingularPython", PyInit_SingularPython);
     /* Pass argv[0] to the Python interpreter */
+    
+    
     Py_SetProgramName(program);
 
     /* Initialize the Python interpreter.  Required. */
