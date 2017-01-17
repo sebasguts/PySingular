@@ -18,6 +18,16 @@ string singular_warning;
 bool singular_python_initialized = false;
 
 /*
+ * Python different version stuff
+ */
+
+#if PY_MAJOR_VERSION >= 3
+#define to_python_string(o) PyUnicode_FromString(o)
+#else
+#define to_python_string(o) PyString_FromString(const_cast<char*>(o))
+#endif
+
+/*
  * Singular init stuff
  */
 
@@ -74,7 +84,7 @@ static PyObject * InitializeSingular( PyObject* self, PyObject* args ){
 static PyObject * RunSingularCommand( PyObject* self, PyObject* args ){
     
     if ( ! singular_python_initialized )
-        return PyTuple_Pack( 2, Py_True, PyUnicode_FromString( "Please use InitializeSingular first " ) );
+        return PyTuple_Pack( 2, Py_True, to_python_string( "Please use InitializeSingular first " ) );
     
     singular_return.erase();
     singular_error.erase();
@@ -103,7 +113,7 @@ static PyObject * RunSingularCommand( PyObject* self, PyObject* args ){
         error = Py_True;
     }
     
-    return PyTuple_Pack( 2, error, PyUnicode_FromString( return_string ) );
+    return PyTuple_Pack( 2, error, to_python_string( return_string ) );
     
 }
 
@@ -112,7 +122,7 @@ extern char** singular_completion( char*, int, int );
 static PyObject * GetSingularCompletion( PyObject* self, PyObject* args ){
     
     if ( ! singular_python_initialized )
-        return PyTuple_Pack( 2, Py_True, PyUnicode_FromString( "Please use InitializeSingular first " ) );
+        return PyTuple_Pack( 2, Py_True, to_python_string( "Please use InitializeSingular first " ) );
     
     const char * input_string;
     int begin;
@@ -128,7 +138,7 @@ static PyObject * GetSingularCompletion( PyObject* self, PyObject* args ){
     int pos = 0;
     PyObject * python_list = PyList_New(0);
     while( singular_complete_return[ pos ] != '\0' ){
-        PyList_Append( python_list, PyUnicode_FromString( singular_complete_return[ pos ] ) );
+        PyList_Append( python_list, to_python_string( singular_complete_return[ pos ] ) );
         pos++;
     }
     
@@ -141,75 +151,172 @@ static PyObject * GetSingularCompletion( PyObject* self, PyObject* args ){
  * Python init stuff
  */
 
+// static PyMethodDef SingularPythonMethods[] = {
+//     {"RunSingularCommand",  RunSingularCommand, METH_VARARGS,
+//      "Runs a singular command"},
+//     {"GetSingularCompletion", GetSingularCompletion, METH_VARARGS,
+//      "Gets readline alike singular completion" },
+//     {"InitializeSingular", InitializeSingular, METH_VARARGS,
+//       "Initializes libsingular" },
+//     {NULL, NULL, 0, NULL}        /* Sentinel */
+// };
+// 
+// static struct PyModuleDef SingularPythonmodule = {
+//    PyModuleDef_HEAD_INIT,
+//    "SingularPython",   /* name of module */
+//    NULL, /* module documentation, may be NULL */
+//    -1,       /* size of per-interpreter state of the module,
+//                 or -1 if the module keeps state in global variables. */
+//    SingularPythonMethods
+// };
+// 
+// PyMODINIT_FUNC
+// PyInit_SingularPython(void)
+// {
+// //     init_singular_for_python();
+//     return PyModule_Create(&SingularPythonmodule);
+// }
+// 
+// /*
+//  * main
+//  */
+// 
+// wchar_t *GetWC(const char *c)
+// {
+//     const size_t cSize = strlen(c)+1;
+//     wchar_t* wc = new wchar_t[cSize];
+//     mbstowcs (wc, c, cSize);
+// 
+//     return wc;
+// }
+// 
+// int main(int argc, char *argv[]){
+// 
+// #ifdef PYTHON_VERSION_OLDER_THREE_FIVE
+//     const size_t cSize = strlen(argv[0])+1;
+//     wchar_t* program = new wchar_t[cSize];
+//     mbstowcs (program, argv[0], cSize);
+// #else
+//     wchar_t *program = Py_DecodeLocale(argv[0], NULL);
+//     if (program == NULL) {
+//         fprintf(stderr, "Fatal error: cannot decode argv[0]\n");
+//         exit(1);
+//     }
+// #endif
+// 
+//     /* Add a built-in module, before Py_Initialize */
+// 
+//     PyImport_AppendInittab("SingularPython", PyInit_SingularPython);
+//     /* Pass argv[0] to the Python interpreter */
+//     
+//     
+//     Py_SetProgramName(program);
+// 
+//     /* Initialize the Python interpreter.  Required. */
+//     Py_Initialize();
+// 
+//     /* Optionally import the module; alternatively,
+//        import can be deferred until the embedded script
+//        imports it. */
+//     PyImport_ImportModule("SingularPython");
+// 
+//     PyMem_RawFree(program);
+//     return 0;
+// }
+
+
+/*
+ * Python mixed init stuff
+ */
+
+struct module_state {
+    PyObject *error;
+};
+
+#if PY_MAJOR_VERSION >= 3
+#define GETSTATE(m) ((struct module_state*)PyModule_GetState(m))
+#else
+#define GETSTATE(m) (&_state)
+static struct module_state _state;
+#endif
+
+static PyObject * error_out(PyObject *m) {
+    struct module_state *st = GETSTATE(m);
+    PyErr_SetString(st->error, "something bad happened");
+    return NULL;
+}
+
 static PyMethodDef SingularPythonMethods[] = {
-    {"RunSingularCommand",  RunSingularCommand, METH_VARARGS,
+    {"RunSingularCommand",(PyCFunction)RunSingularCommand, METH_VARARGS,
      "Runs a singular command"},
-    {"GetSingularCompletion", GetSingularCompletion, METH_VARARGS,
+    {"GetSingularCompletion",(PyCFunction)GetSingularCompletion, METH_VARARGS,
      "Gets readline alike singular completion" },
-    {"InitializeSingular", InitializeSingular, METH_VARARGS,
+    {"InitializeSingular",(PyCFunction)InitializeSingular, METH_VARARGS,
       "Initializes libsingular" },
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
-static struct PyModuleDef SingularPythonmodule = {
-   PyModuleDef_HEAD_INIT,
-   "SingularPython",   /* name of module */
-   NULL, /* module documentation, may be NULL */
-   -1,       /* size of per-interpreter state of the module,
-                or -1 if the module keeps state in global variables. */
-   SingularPythonMethods
+
+#if PY_MAJOR_VERSION >= 3
+
+static int SingularPython_traverse(PyObject *m, visitproc visit, void *arg) {
+    Py_VISIT(GETSTATE(m)->error);
+    return 0;
+}
+
+static int SingularPython_clear(PyObject *m) {
+    Py_CLEAR(GETSTATE(m)->error);
+    return 0;
+}
+
+
+static struct PyModuleDef moduledef = {
+        PyModuleDef_HEAD_INIT,
+        "SingularPython",
+        NULL,
+        sizeof(struct module_state),
+        SingularPythonMethods,
+        NULL,
+        SingularPython_traverse,
+        SingularPython_clear,
+        NULL
 };
 
-PyMODINIT_FUNC
-PyInit_SingularPython(void)
-{
-//     init_singular_for_python();
-    return PyModule_Create(&SingularPythonmodule);
-}
+#define INITERROR return NULL
 
-/*
- * main
- */
+PyMODINIT_FUNC PyInit_SingularPython(void)
 
-wchar_t *GetWC(const char *c)
-{
-    const size_t cSize = strlen(c)+1;
-    wchar_t* wc = new wchar_t[cSize];
-    mbstowcs (wc, c, cSize);
-
-    return wc;
-}
-
-int main(int argc, char *argv[]){
-
-#ifdef PYTHON_VERSION_OLDER_THREE_FIVE
-    const size_t cSize = strlen(argv[0])+1;
-    wchar_t* program = new wchar_t[cSize];
-    mbstowcs (program, argv[0], cSize);
 #else
-    wchar_t *program = Py_DecodeLocale(argv[0], NULL);
-    if (program == NULL) {
-        fprintf(stderr, "Fatal error: cannot decode argv[0]\n");
-        exit(1);
-    }
+#define INITERROR return
+
+extern "C" void initSingularPython(void)
+#endif
+{
+#if PY_MAJOR_VERSION >= 3
+    PyObject *module = PyModule_Create(&moduledef);
+#else
+    PyObject *module = Py_InitModule("SingularPython", SingularPythonMethods);
 #endif
 
-    /* Add a built-in module, before Py_Initialize */
+    if (module == NULL)
+        INITERROR;
+    struct module_state *st = GETSTATE(module);
 
-    PyImport_AppendInittab("SingularPython", PyInit_SingularPython);
-    /* Pass argv[0] to the Python interpreter */
+//     st->error = PyErr_NewException(const_cast<char*>("PyNormaliz.INITError"), NULL, NULL);
+//     if (st->error == NULL) {
+//         Py_DECREF(module);
+//         INITERROR;
+//     }
     
+//     NormalizError = PyErr_NewException(const_cast<char*>("Normaliz.error"), NULL, NULL );
+//     Py_INCREF( NormalizError );
+//     PyNormalizError = PyErr_NewException(const_cast<char*>("Normaliz.interface_error"), NULL, NULL );
+//     Py_INCREF( PyNormalizError );
     
-    Py_SetProgramName(program);
+//     PyModule_AddObject( module, "error", NormalizError );
+//     PyModule_AddObject( module, "error", PyNormalizError );
 
-    /* Initialize the Python interpreter.  Required. */
-    Py_Initialize();
-
-    /* Optionally import the module; alternatively,
-       import can be deferred until the embedded script
-       imports it. */
-    PyImport_ImportModule("SingularPython");
-
-    PyMem_RawFree(program);
-    return 0;
+#if PY_MAJOR_VERSION >= 3
+    return module;
+#endif
 }
