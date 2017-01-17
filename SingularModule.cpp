@@ -13,6 +13,7 @@ using std::string;
 
 string singular_return;
 string singular_error;
+string singular_warning;
 
 bool singular_python_initialized = false;
 
@@ -28,6 +29,11 @@ void WerrorS_for_python(const char *s)
 void PrintS_for_python(const char *s)
 {
   singular_return += s;
+}
+
+void WarningS_for_python(const char *s)
+{
+  singular_warning += s;
 }
 
 // void init_singular_for_python(){
