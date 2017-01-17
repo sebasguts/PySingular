@@ -1,0 +1,15 @@
+# SingularPython
+## A basic interface to call Singular from python
+
+This python module is meant to be used in Singulars Jupyter interface.
+
+## Install
+
+Install via
+```
+python setup.py install
+```
+
+## Notes
+
+Please note that this is alpha work at the moment.
