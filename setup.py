@@ -12,13 +12,13 @@ singular_library_dir = singular_library_dir.strip()
 singular_library_dir = singular_library_dir.decode( 'utf-8' )
 
 setup(
-    name = 'SingularPython',
+    name = 'PySingular',
     version = '0.9.1',
     description = 'A simple interface to Singular',
     author = 'Sebastian Gutsche',
     author_email = 'sebastian.gutsche@gmail.com',
     url = 'https://github.com/sebasguts/SingularPython',
-    ext_modules= [ Extension( "SingularPython",
+    ext_modules= [ Extension( "PySingular",
                               [ "SingularModule.cpp" ],
                               include_dirs=[ singular_library_dir + '/include/singular' ],
                               library_dirs=[ singular_library_dir + '/lib' ],

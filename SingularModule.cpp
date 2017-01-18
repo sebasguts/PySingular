@@ -151,7 +151,7 @@ static PyObject * GetSingularCompletion( PyObject* self, PyObject* args ){
  * Python init stuff
  */
 
-// static PyMethodDef SingularPythonMethods[] = {
+// static PyMethodDef PySingularMethods[] = {
 //     {"RunSingularCommand",  RunSingularCommand, METH_VARARGS,
 //      "Runs a singular command"},
 //     {"GetSingularCompletion", GetSingularCompletion, METH_VARARGS,
@@ -161,20 +161,20 @@ static PyObject * GetSingularCompletion( PyObject* self, PyObject* args ){
 //     {NULL, NULL, 0, NULL}        /* Sentinel */
 // };
 // 
-// static struct PyModuleDef SingularPythonmodule = {
+// static struct PyModuleDef PySingularmodule = {
 //    PyModuleDef_HEAD_INIT,
-//    "SingularPython",   /* name of module */
+//    "PySingular",   /* name of module */
 //    NULL, /* module documentation, may be NULL */
 //    -1,       /* size of per-interpreter state of the module,
 //                 or -1 if the module keeps state in global variables. */
-//    SingularPythonMethods
+//    PySingularMethods
 // };
 // 
 // PyMODINIT_FUNC
-// PyInit_SingularPython(void)
+// PyInit_PySingular(void)
 // {
 // //     init_singular_for_python();
-//     return PyModule_Create(&SingularPythonmodule);
+//     return PyModule_Create(&PySingularmodule);
 // }
 // 
 // /*
@@ -206,7 +206,7 @@ static PyObject * GetSingularCompletion( PyObject* self, PyObject* args ){
 // 
 //     /* Add a built-in module, before Py_Initialize */
 // 
-//     PyImport_AppendInittab("SingularPython", PyInit_SingularPython);
+//     PyImport_AppendInittab("PySingular", PyInit_PySingular);
 //     /* Pass argv[0] to the Python interpreter */
 //     
 //     
@@ -218,7 +218,7 @@ static PyObject * GetSingularCompletion( PyObject* self, PyObject* args ){
 //     /* Optionally import the module; alternatively,
 //        import can be deferred until the embedded script
 //        imports it. */
-//     PyImport_ImportModule("SingularPython");
+//     PyImport_ImportModule("PySingular");
 // 
 //     PyMem_RawFree(program);
 //     return 0;
@@ -246,7 +246,7 @@ static PyObject * error_out(PyObject *m) {
     return NULL;
 }
 
-static PyMethodDef SingularPythonMethods[] = {
+static PyMethodDef PySingularMethods[] = {
     {"RunSingularCommand",(PyCFunction)RunSingularCommand, METH_VARARGS,
      "Runs a singular command"},
     {"GetSingularCompletion",(PyCFunction)GetSingularCompletion, METH_VARARGS,
@@ -259,12 +259,12 @@ static PyMethodDef SingularPythonMethods[] = {
 
 #if PY_MAJOR_VERSION >= 3
 
-static int SingularPython_traverse(PyObject *m, visitproc visit, void *arg) {
+static int PySingular_traverse(PyObject *m, visitproc visit, void *arg) {
     Py_VISIT(GETSTATE(m)->error);
     return 0;
 }
 
-static int SingularPython_clear(PyObject *m) {
+static int PySingular_clear(PyObject *m) {
     Py_CLEAR(GETSTATE(m)->error);
     return 0;
 }
@@ -272,30 +272,30 @@ static int SingularPython_clear(PyObject *m) {
 
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
-        "SingularPython",
+        "PySingular",
         NULL,
         sizeof(struct module_state),
-        SingularPythonMethods,
+        PySingularMethods,
         NULL,
-        SingularPython_traverse,
-        SingularPython_clear,
+        PySingular_traverse,
+        PySingular_clear,
         NULL
 };
 
 #define INITERROR return NULL
 
-PyMODINIT_FUNC PyInit_SingularPython(void)
+PyMODINIT_FUNC PyInit_PySingular(void)
 
 #else
 #define INITERROR return
 
-extern "C" void initSingularPython(void)
+extern "C" void initPySingular(void)
 #endif
 {
 #if PY_MAJOR_VERSION >= 3
     PyObject *module = PyModule_Create(&moduledef);
 #else
-    PyObject *module = Py_InitModule("SingularPython", SingularPythonMethods);
+    PyObject *module = Py_InitModule("PySingular", PySingularMethods);
 #endif
 
     if (module == NULL)
