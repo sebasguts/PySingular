@@ -13,7 +13,7 @@ singular_library_dir = singular_library_dir.decode( 'utf-8' )
 
 setup(
     name = 'SingularPython',
-    version = '0.9',
+    version = '0.9.1',
     description = 'A simple interface to Singular',
     author = 'Sebastian Gutsche',
     author_email = 'sebastian.gutsche@gmail.com',
@@ -21,7 +21,8 @@ setup(
     ext_modules= [ Extension( "SingularPython",
                               [ "SingularModule.cpp" ],
                               include_dirs=[ singular_library_dir + '/include/singular' ],
-                              extra_link_args=['-lSingular', '-lpolys', '-lfactory', '-lresources', '-lomalloc', '-lflint', '-lntl', '-lgmp', '-lreadline', '-ldl', '-pthread' ],
+                              library_dirs=[ singular_library_dir + '/lib' ],
+                              extra_link_args=['-lSingular' ],
                               define_macros = macro_list ) ],
     package_data = { '': [ "COPYING", "GPLv2" ] },
 )
