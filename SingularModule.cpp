@@ -96,7 +96,7 @@ static PyObject * RunSingularCommand( PyObject* self, PyObject* args ){
     char *ost = (char *)omalloc0(strlen(input_string) + sizeof(return_str)+1);
     strcpy(ost, input_string);
     strcat(ost,return_str);
-    myynest = 1;
+//     myynest = 1;
     BOOLEAN err = iiAllStart(NULL, ost, BT_proc, 0);
     inerror = 0;
     errorreported = 0;
