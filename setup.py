@@ -13,7 +13,7 @@ singular_library_dir = singular_library_dir.decode( 'utf-8' )
 
 setup(
     name = 'PySingular',
-    version = '0.9.1',
+    version = '0.9.2',
     description = 'A simple interface to Singular',
     author = 'Sebastian Gutsche',
     author_email = 'sebastian.gutsche@gmail.com',
