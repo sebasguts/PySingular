@@ -32,7 +32,9 @@ except FileNotFoundError:
         print( "libsingular-config and pkg-config not found - guessing debian" )
         include_dirs=[ 'usr/include/singular', 'usr/include/singular/singular', 'usr/local/include/singular', 'usr/local/include/singular/singular' ]
         library_dirs=[ 'usr/lib' ]
-        singular_ldflags = singular_ldflags + "-lsingular-Singular -ldl -lsingular-polys -lflint -lmpfr -lntl -lgmp -ldl -lsingular-factory -lflint -lmpfr -lntl -lgmp -lsingular-omalloc -lsingular-resources".split()
+        singular_ldflags = singular_ldflags + ['-lsingular-Singular', '-ldl', '-lsingular-polys',
+                                               '-ldl', '-lsingular-factory', '-lflint',
+                                               '-lmpfr', '-lntl', '-lgmp', '-lsingular-omalloc', '-lsingular-resources']
 
 setup(
     name = 'PySingular',
