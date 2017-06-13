@@ -10,7 +10,6 @@ else:
 if sys.version_info < (3,0):
     FileNotFoundError = OSError
 
-singular_ldflags=['-lSingular' ]
 singular_cflags=[]
 try:
     singular_library_dir = subprocess.check_output( [ "libsingular-config", "--prefix" ] )
@@ -18,23 +17,22 @@ try:
     singular_library_dir = singular_library_dir.decode( 'utf-8' )
     include_dirs=[ singular_library_dir + '/include/singular' ]
     library_dirs=[ singular_library_dir + '/lib' ]
+    singular_ldflags=['-lSingular' ]
 except FileNotFoundError:
     try:
         singular_cflags_output = subprocess.check_output( [ "pkg-config", "--cflags", "singular" ] ).strip().decode( 'utf-8' )
-        singular_ldflags_output = subprocess.check_output( [ "pkg-config", "--libs", "singular" ] ).strip().decode( 'utf-8' )
         if singular_cflags_output.find( "not found" ) == 0:
             raise FileNotFoundError
         singular_cflags = singular_cflags_output.split()
-        singular_ldflags = singular_ldflags_output.split()
+        ## pkg-config ldflags are rubbish
+        singular_ldflags = [ '-lsingular-Singular' ]
         include_dirs = [ ]
-        library_dirs = [ ]
+        library_dirs = [ '/usr/lib' ]
     except FileNotFoundError:
         print( "libsingular-config and pkg-config not found - guessing debian" )
         include_dirs=[ 'usr/include/singular', 'usr/include/singular/singular', 'usr/local/include/singular', 'usr/local/include/singular/singular' ]
         library_dirs=[ 'usr/lib' ]
-        singular_ldflags = singular_ldflags + ['-lsingular-Singular', '-ldl', '-lsingular-polys',
-                                               '-ldl', '-lsingular-factory', '-lflint',
-                                               '-lmpfr', '-lntl', '-lgmp', '-lsingular-omalloc', '-lsingular-resources']
+        singular_ldflags = ['-lsingular-Singular' ]
 
 setup(
     name = 'PySingular',
