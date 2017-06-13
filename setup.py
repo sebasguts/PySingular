@@ -20,12 +20,12 @@ try:
     library_dirs=[ singular_library_dir + '/lib' ]
 except FileNotFoundError:
     try:
-        singular_cflags = subprocess.check_output( [ "pkg-config", "--cflags", "singular" ] ).strip().decode( 'utf-8' )
-        singular_ldflags = subprocess.check_output( [ "pkg-config", "--libs", "singular" ] ).strip().decode( 'utf-8' )
-        if singular_cflags.find( "not found" ) < 0:
+        singular_cflags_output = subprocess.check_output( [ "pkg-config", "--cflags", "singular" ] ).strip().decode( 'utf-8' )
+        singular_ldflags_output = subprocess.check_output( [ "pkg-config", "--libs", "singular" ] ).strip().decode( 'utf-8' )
+        if singular_cflags_output.find( "not found" ) == 0:
             raise FileNotFoundError
-        singular_cflags = singular_cflags.split()
-        singular_ldflags = singular_ldflags.split()
+        singular_cflags = singular_cflags_output.split()
+        singular_ldflags = singular_ldflags_output.split()
         include_dirs = [ ]
         library_dirs = [ ]
     except FileNotFoundError:
