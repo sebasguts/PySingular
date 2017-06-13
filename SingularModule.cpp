@@ -84,7 +84,7 @@ static PyObject * InitializeSingular( PyObject* self, PyObject* args ){
 static PyObject * RunSingularCommand( PyObject* self, PyObject* args ){
     
     if ( ! singular_python_initialized )
-        return PyTuple_Pack( 2, Py_True, to_python_string( "Please use InitializeSingular first " ) );
+        return PyTuple_Pack( 2, Py_True, to_python_string( "Please use InitializeSingular first" ) );
     
     singular_return.erase();
     singular_error.erase();
@@ -92,7 +92,7 @@ static PyObject * RunSingularCommand( PyObject* self, PyObject* args ){
     if (! PyArg_ParseTuple(args, "s", &input_string) )
         return NULL;
     
-    const char return_str[] = "return();";
+    const char return_str[] = "\nreturn();";
     char *ost = (char *)omalloc0(strlen(input_string) + sizeof(return_str)+1);
     strcpy(ost, input_string);
     strcat(ost,return_str);
@@ -122,7 +122,7 @@ extern char** singular_completion( char*, int, int );
 static PyObject * GetSingularCompletion( PyObject* self, PyObject* args ){
     
     if ( ! singular_python_initialized )
-        return PyTuple_Pack( 2, Py_True, to_python_string( "Please use InitializeSingular first " ) );
+        return PyTuple_Pack( 2, Py_True, to_python_string( "Please use InitializeSingular first" ) );
     
     const char * input_string;
     int begin;
