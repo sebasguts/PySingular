@@ -7,6 +7,9 @@ if sys.version_info < (3,5):
 else:
     macro_list = [ ]
 
+if sys.version_info < (3,0):
+    FileNotFoundError = OSError
+
 singular_ldflags=['-lSingular' ]
 singular_cflags=[]
 try:
