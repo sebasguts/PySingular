@@ -30,7 +30,18 @@ except FileNotFoundError:
         library_dirs = [ '/usr/lib' ]
     except FileNotFoundError:
         print( "libsingular-config and pkg-config not found - guessing debian" )
-        include_dirs=[ '/usr/include/singular', '/usr/include/singular/singular', '/usr/local/include/singular', '/usr/local/include/singular/singular' ]
+        include_dirs=['/usr/include/x86_64-linux-gnu/singular',
+                      '/usr/include/x86_64-linux-gnu/singular/singular',
+                      '/usr/include/singular', '/usr/include/singular/singular',
+                      '/usr/include/x86_64-linux-gnu/singular',
+                      '/usr/include/x86_64-linux-gnu/singular/singular',
+                      '/usr/include/singular', '/usr/include/singular/singular',
+                      '/usr/include/x86_64-linux-gnu/singular',
+                      '/usr/include/singular',
+                      '/usr/include/x86_64-linux-gnu/singular',
+                      '/usr/include/singular',
+                      '/usr/include/x86_64-linux-gnu/singular',
+                      '/usr/include/singular']
         library_dirs=[ '/usr/lib' ]
         singular_ldflags = ['-lsingular-Singular' ]
 
