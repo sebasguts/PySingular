@@ -36,7 +36,7 @@ except FileNotFoundError:
 
 setup(
     name = 'PySingular',
-    version = '0.9.2',
+    version = '0.9.3',
     description = 'A simple interface to Singular',
     author = 'Sebastian Gutsche',
     author_email = 'sebastian.gutsche@gmail.com',
