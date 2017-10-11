@@ -137,7 +137,7 @@ static PyObject * GetSingularCompletion( PyObject* self, PyObject* args ){
     
     int pos = 0;
     PyObject * python_list = PyList_New(0);
-    while( singular_complete_return[ pos ] != '\0' ){
+    while( singular_complete_return[ pos ] ){
         PyList_Append( python_list, to_python_string( singular_complete_return[ pos ] ) );
         pos++;
     }
