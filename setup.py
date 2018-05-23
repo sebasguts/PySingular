@@ -20,7 +20,11 @@ try:
     singular_ldflags=['-lSingular' ]
 except FileNotFoundError:
     try:
-        singular_cflags_output = subprocess.check_output( [ "pkg-config", "--cflags", "singular" ] ).strip().decode( 'utf-8' )
+        try:
+            singular_cflags_output = subprocess.check_output( [ "pkg-config", "--cflags", "singular" ] ).strip().decode( 'utf-8' )
+        except:
+            print( "Could not find a suitable libsingular configuration. Do you have libsingular headers installed?")
+            exit(1)
         if singular_cflags_output.find( "not found" ) == 0:
             raise FileNotFoundError
         singular_cflags = singular_cflags_output.split()
@@ -47,7 +51,7 @@ except FileNotFoundError:
 
 setup(
     name = 'PySingular',
-    version = '0.9.5',
+    version = '0.9.6',
     description = 'A simple interface to Singular',
     author = 'Sebastian Gutsche',
     author_email = 'sebastian.gutsche@gmail.com',
