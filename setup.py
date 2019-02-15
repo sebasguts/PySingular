@@ -15,7 +15,7 @@ try:
     singular_library_dir = subprocess.check_output( [ "libsingular-config", "--prefix" ] )
     singular_library_dir = singular_library_dir.strip()
     singular_library_dir = singular_library_dir.decode( 'utf-8' )
-    include_dirs=[ singular_library_dir + '/include/singular' ]
+    include_dirs=[ singular_library_dir + '/include/singular', singular_library_dir + '/include' ]
     library_dirs=[ singular_library_dir + '/lib' ]
     singular_ldflags=['-lSingular' ]
 except FileNotFoundError:
@@ -51,7 +51,7 @@ except FileNotFoundError:
 
 setup(
     name = 'PySingular',
-    version = '0.9.6',
+    version = '0.9.7',
     description = 'A simple interface to Singular',
     author = 'Sebastian Gutsche',
     author_email = 'sebastian.gutsche@gmail.com',
